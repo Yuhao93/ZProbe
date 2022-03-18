@@ -1,0 +1,32 @@
+.hidden {
+  display: none;
+}
+
+.disabled {
+  opacity: .2;
+}
+
+#ble-connected-text,
+#ble-ok-text {
+  color: green;
+}
+
+#ble-disconnected-text {
+  color: red;
+}
+
+.step-row {
+  padding: 20px;
+  border-top: 1px solid lightgrey;
+  box-shadow: 0 4px 4px -4px lightgrey;
+}
+
+.text-col {
+  font-size: 24px;
+  color: #444;
+}
+
+.btn-col {
+  text-align: center;
+  height: 48px;
+}
