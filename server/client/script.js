@@ -6,7 +6,7 @@ const CANVAS_DRAW_WIDTH = 500;
 const CANVAS_DRAW_HEIGHT = 400;
 const PROBE_DISTANCE_MM = 5;
 const SECONDS_PER_PROBE = 45;
-const TEST_DEPTHS = true;
+const TEST_DEPTHS = false;
 
 let zProbeDevice = null;
 let zProbeWrite = null;
@@ -125,6 +125,37 @@ function getDepth(x, y, zDepths) {
   return zDepths.reduce((a, b) => a + b, 0) / zDepths.length;
 }
 
+function drawBoard(width, height, lines, probePoints) {
+  const widthRatio = width / CANVAS_DRAW_WIDTH;
+  const heightRatio = height / CANVAS_DRAW_HEIGHT;
+  const drawRatio = Math.max(widthRatio, heightRatio);
+  const drawWidth = width / drawRatio;
+  const drawHeight = height / drawRatio;
+
+  const canvasContext = document.querySelector('#probe-points').getContext('2d');
+  canvasContext.fillStyle = 'black';
+  canvasContext.fillRect(48, 48, drawWidth + 4, drawHeight + 4);
+  canvasContext.fillStyle = '#fca903';
+  canvasContext.fillRect(50, 50, drawWidth, drawHeight);
+
+  for (const line of lines) {
+    canvasContext.strokeStyle = line.isCut ? 'black' : 'lightGrey';
+    canvasContext.beginPath();
+    canvasContext.moveTo(50 + line.fromX / drawRatio, 50 + (height - line.fromY) / drawRatio);
+    canvasContext.lineTo(50 + line.toX / drawRatio, 50 + (height - line.toY) / drawRatio);
+    canvasContext.stroke();
+  }
+
+  canvasContext.fillStyle = '#0362fc';
+  for (const point of probePoints) {
+    canvasContext.beginPath();
+    canvasContext.arc(
+      50 + point.x / drawRatio,
+      50 + (height - point.y) / drawRatio, 5, 0, 2 * Math.PI);
+    canvasContext.fill();
+  }
+}
+
 
 document.querySelector('#step-1-ok').onclick = () => {
   document.querySelector('#step-1').classList.add('disabled');
@@ -221,40 +252,14 @@ document.querySelector('#upload').addEventListener('change', async (evt) => {
     x += PROBE_DISTANCE_MM;
   }
 
-  const widthRatio = width / CANVAS_DRAW_WIDTH;
-  const heightRatio = height / CANVAS_DRAW_HEIGHT;
-  const drawRatio = Math.max(widthRatio, heightRatio);
-  const drawWidth = width / drawRatio;
-  const drawHeight = height / drawRatio;
-
-  const canvasContext = document.querySelector('#probe-points').getContext('2d');
-  canvasContext.fillStyle = 'black';
-  canvasContext.fillRect(48, 48, drawWidth + 4, drawHeight + 4);
-  canvasContext.fillStyle = '#fca903';
-  canvasContext.fillRect(50, 50, drawWidth, drawHeight);
-
-  for (const line of lines) {
-    canvasContext.strokeStyle = line.isCut ? 'black' : 'lightGrey';
-    canvasContext.beginPath();
-    canvasContext.moveTo(50 + line.fromX / drawRatio, 50 + line.fromY / drawRatio);
-    canvasContext.lineTo(50 + line.toX / drawRatio, 50 + line.toY / drawRatio);
-    canvasContext.stroke();
-  }
-
-  canvasContext.fillStyle = '#0362fc';
-  for (const point of probePoints) {
-    canvasContext.beginPath();
-    canvasContext.arc(
-      50 + point.x / drawRatio,
-      50 + point.y / drawRatio, 5, 0, 2 * Math.PI);
-    canvasContext.fill();
-  }
+  drawBoard(width, height, lines, probePoints);
 
   const timeEstimate = SECONDS_PER_PROBE * probePoints.length;
   const seconds = timeEstimate % 60;
   const minutes = Math.floor(timeEstimate / 60) % 60;
   const hours = Math.floor(timeEstimate / 3600);
-  document.querySelector('#time-estimate').innerText = `Estimated time: ${hours}:${minutes}:${seconds}`;
+  document.querySelector('#time-estimate').innerText =
+    `Estimated time: ${hours}:${minutes}:${seconds}`;
 
   document.querySelector('#step-5').classList.add('disabled');
   document.querySelector('#step-6').classList.remove('hidden');
