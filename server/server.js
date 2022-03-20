@@ -10,8 +10,14 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 app.get('/', (req, res) => {
   res.sendFile('/client/index.html', { root : __dirname});
 });
+app.get('/gcode', (req, res) => {
+  res.sendFile('/client/gcode.html', { root : __dirname});
+});
 app.get('/script.js', (req, res) => {
   res.sendFile('/client/script.js', { root : __dirname});
+});
+app.get('/gcode.js', (req, res) => {
+  res.sendFile('/client/gcode.js', { root : __dirname});
 });
 app.get('/styles.css', (req, res) => {
   res.sendFile('/client/styles.css', { root : __dirname});
